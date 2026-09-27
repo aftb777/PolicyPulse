@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PolicyPulse — find the scheme that's for you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16283D;
+    --navy-deep:#0F1F30;
+    --paper:#F1F2EC;
+    --paper-raised:#FFFFFF;
+    --ink:#1E2A28;
+    --ink-soft:#51605D;
+    --line:#D8DACD;
+    --marigold:#E2A33B;
+    --marigold-deep:#B87F22;
+    --teal:#3B7A79;
+    --teal-soft:#E4EEED;
+    --danger:#B3492F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', -apple-system, Segoe UI, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Source Serif 4', Georgia, serif;
+    font-weight:600;
+    margin:0;
+    color:var(--navy);
+  }
+  a{color:var(--teal);}
+
+  .hero{
+    background:radial-gradient(120% 160% at 15% 0%, #1C3350 0%, var(--navy-deep) 60%);
+    color:#F1F2EC;
+    padding:52px 24px 60px;
+  }
+  .hero-inner{max-width:900px;margin:0 auto;}
+  .wordmark{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Source Serif 4', serif;
+    font-size:1.15rem;font-weight:600;
+    color:#F1F2EC;letter-spacing:.01em;margin-bottom:36px;
+  }
+  .wordmark .dot{width:9px;height:9px;border-radius:50%;background:var(--marigold);display:inline-block;}
+  .hero h1{
+    color:#F7F4EC;
+    font-size:clamp(1.9rem, 4vw, 2.7rem);
+    font-weight:600;
+    max-width:15ch;
+    line-height:1.15;
+  }
+  .hero p.sub{
+    color:#C7CFD6;
+    margin:16px 0 34px;
+    max-width:52ch;
+    font-size:1.02rem;
+  }
+
+  .search-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .search-box{
+    flex:1 1 320px;
+    display:flex;align-items:center;
+    background:#F7F4EC;
+    border:1px solid transparent;
+    border-radius:3px;
+    padding:0 6px 0 16px;
+  }
+  .search-box input{
+    flex:1;border:none;background:transparent;outline:none;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:1rem;padding:14px 8px;color:var(--ink);
+  }
+  .search-box input::placeholder{color:#8B9490;}
+  button.go{
+    background:var(--marigold);
+    border:none;color:#241704;
+    font-weight:600;font-size:.95rem;
+    padding:0 22px;height:46px;margin:5px;
+    border-radius:2px;cursor:pointer;
+    transition:background .15s ease;
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  button.go:hover{background:var(--marigold-deep);color:#fff;}
+  button.go:disabled{opacity:.55;cursor:progress;}
+
+  .filters{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .filters select{
+    background:rgba(255,255,255,.08);
+    color:#E7EAE3;
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:2px;
+    padding:9px 12px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:.88rem;
+  }
+  .filters select option{color:#1E2A28;}
+
+  .example-row{margin-top:18px;font-size:.86rem;color:#9AA6AD;}
+  .example-row button{
+    background:none;border:none;color:#C7CFD6;
+    text-decoration:underline;text-underline-offset:3px;
+    cursor:pointer;font-size:.86rem;padding:0;margin-right:14px;
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  .example-row button:hover{color:var(--marigold);}
+
+  main{max-width:900px;margin:0 auto;padding:36px 24px 100px;}
+
+  .status-line{
+    font-size:.9rem;color:var(--ink-soft);
+    padding-bottom:18px;border-bottom:1px solid var(--line);
+    margin-bottom:6px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  }
+
+  .empty-state{padding:60px 10px;text-align:left;color:var(--ink-soft);}
+  .empty-state h2{font-size:1.3rem;margin-bottom:10px;color:var(--navy);}
+  .empty-state p{max-width:48ch;}
+
+  .error-box{
+    background:#FBEBE6;border:1px solid #E7B8A9;color:var(--danger);
+    padding:16px 18px;border-radius:3px;margin-bottom:20px;font-size:.92rem;
+  }
+
+  .result{
+    border-bottom:1px solid var(--line);
+    padding:26px 0;
+    display:grid;
+    grid-template-columns:44px 1fr;
+    gap:18px;
+  }
+  .rank{
+    font-family:'Source Serif 4', serif;
+    color:#B7BDA8;
+    font-size:1.5rem;
+    font-weight:600;
+    line-height:1;
+    padding-top:3px;
+  }
+  .result-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .result h3{font-size:1.14rem;line-height:1.35;max-width:60ch;}
+  .badges{display:flex;gap:8px;flex-shrink:0;align-items:center;}
+  .badge{
+    font-size:.72rem;border:1px solid var(--line);
+    padding:3px 9px;border-radius:20px;color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .badge.level{border-color:var(--teal);color:var(--teal);background:var(--teal-soft);}
+  .relevance{display:flex;gap:3px;align-items:center;}
+  .relevance span{width:6px;height:6px;border-radius:50%;background:var(--line);}
+  .relevance span.on{background:var(--marigold);}
+
+  .categories{margin-top:6px;font-size:.82rem;color:var(--ink-soft);}
+  .snippet{margin-top:10px;font-size:.95rem;color:var(--ink);max-width:70ch;}
+
+  .panels{margin-top:14px;display:flex;flex-direction:column;gap:6px;}
+  details{border:1px solid var(--line);border-radius:2px;background:var(--paper-raised);}
+  details summary{
+    list-style:none;cursor:pointer;
+    padding:10px 14px;font-size:.88rem;font-weight:500;color:var(--navy);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{content:"+";color:var(--ink-soft);font-size:1rem;}
+  details[open] summary::after{content:"–";}
+  details .panel-body{
+    padding:0 14px 14px;font-size:.9rem;color:var(--ink-soft);
+    border-top:1px solid var(--line);padding-top:12px;
+  }
+
+  .skeleton{border-bottom:1px solid var(--line);padding:26px 0;display:grid;grid-template-columns:44px 1fr;gap:18px;}
+  .skeleton .bar{background:linear-gradient(90deg,#E4E5DC 25%,#EEEFE7 37%,#E4E5DC 63%);
+    background-size:400% 100%;animation:shimmer 1.3s infinite;border-radius:2px;}
+  @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
+
+  footer{
+    text-align:left;max-width:900px;margin:0 auto;padding:0 24px 48px;
+    font-size:.8rem;color:#8B9490;
+  }
+
+  @media (max-width: 560px){
+    .result{grid-template-columns:28px 1fr;gap:10px;}
+    .rank{font-size:1.1rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="wordmark"><span class="dot"></span>PolicyPulse</div>
+    <h1>Describe your situation. We'll find the scheme.</h1>
+    <p class="sub">Search across roughly 3,500 central and state government schemes in plain language — no scheme names or department jargon required.</p>
+
+    <form class="search-row" id="search-form">
+      <div class="search-box">
+        <input type="text" id="query-input" autocomplete="off"
+          placeholder="e.g. I'm a farmer from Maharashtra looking for financial assistance">
+      </div>
+      <button class="go" type="submit" id="go-btn">Search</button>
+    </form>
+
+    <div class="filters">
+      <select id="level-filter"><option value="">Any level</option></select>
+      <select id="category-filter"><option value="">Any category</option></select>
+    </div>
+
+    <div class="example-row">
+      Try: 
+      <button type="button" data-q="I am a widow and need a pension">widow seeking a pension</button>
+      <button type="button" data-q="scholarship for a low income student">student scholarship</button>
+      <button type="button" data-q="I want to start a small business">starting a small business</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="status-line" class="status-line" style="display:none;"></div>
+  <div id="error-box" class="error-box" style="display:none;"></div>
+  <div id="results"></div>
+  <div id="empty-state" class="empty-state">
+    <h2>Nothing searched yet</h2>
+    <p>Type what you need help with — your situation, your state, your occupation — and PolicyPulse will surface the closest-matching schemes, ranked by relevance.</p>
+  </div>
+</main>
+
+<footer>
+  Scheme data sourced from public government portals. PolicyPulse is an independent retrieval tool, not a government service — confirm eligibility on the official scheme page before applying.
+</footer>
+
+<script>
+const API_BASE = "http://127.0.0.1:5000";
+
+const form = document.getElementById("search-form");
+const input = document.getElementById("query-input");
+const goBtn = document.getElementById("go-btn");
+const levelFilter = document.getElementById("level-filter");
+const categoryFilter = document.getElementById("category-filter");
+const resultsEl = document.getElementById("results");
+const statusEl = document.getElementById("status-line");
+const errorEl = document.getElementById("error-box");
+const emptyEl = document.getElementById("empty-state");
+
+fetch(`${API_BASE}/api/meta`)
+  .then(r => r.json())
+  .then(meta => {
+    (meta.levels || []).forEach(lvl => {
+      const opt = document.createElement("option");
+      opt.value = lvl; opt.textContent = lvl;
+      levelFilter.appendChild(opt);
+    });
+    (meta.categories || []).forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat; opt.textContent = cat;
+      categoryFilter.appendChild(opt);
+    });
+  })
+  .catch(() => {});
+
+document.querySelectorAll(".example-row button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    input.value = btn.dataset.q;
+    form.requestSubmit();
+  });
+});
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const query = input.value.trim();
+  if (!query) return;
+  runSearch(query);
+});
+
+function escapeHtml(str){
+  return String(str ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[c]));
+}
+
+function showSkeleton(){
+  emptyEl.style.display = "none";
+  errorEl.style.display = "none";
+  statusEl.style.display = "none";
+  resultsEl.innerHTML = "";
+  for (let i = 0; i < 4; i++){
+    const row = document.createElement("div");
+    row.className = "skeleton";
+    row.innerHTML = `<div></div><div>
+      <div class="bar" style="height:16px;width:60%;margin-bottom:10px;"></div>
+      <div class="bar" style="height:12px;width:90%;margin-bottom:6px;"></div>
+      <div class="bar" style="height:12px;width:75%;"></div>
+    </div>`;
+    resultsEl.appendChild(row);
+  }
+}
+
+async function runSearch(query){
+  showSkeleton();
+  goBtn.disabled = true;
+  goBtn.textContent = "Searching…";
+
+  const payload = {
+    query,
+    k: 8,
+    level: levelFilter.value,
+    category: categoryFilter.value,
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/search`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok){
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `Server responded with ${res.status}`);
+    }
+
+    const data = await res.json();
+    renderResults(data);
+  } catch (err){
+    resultsEl.innerHTML = "";
+    errorEl.style.display = "block";
+    errorEl.textContent = `Couldn't reach PolicyPulse: ${err.message}. Make sure the backend is running (python app.py) at ${API_BASE}.`;
+  } finally {
+    goBtn.disabled = false;
+    goBtn.textContent = "Search";
+  }
+}
+
+function renderResults(data){
+  errorEl.style.display = "none";
+  emptyEl.style.display = "none";
+  statusEl.style.display = "flex";
+  statusEl.innerHTML = `<span>${data.count} result${data.count === 1 ? "" : "s"} for “${escapeHtml(data.query)}”</span>`;
+
+  if (!data.results.length){
+    resultsEl.innerHTML = "";
+    emptyEl.style.display = "block";
+    emptyEl.innerHTML = `<h2>No matching schemes</h2><p>Try removing a filter, or describe your situation a little differently.</p>`;
+    return;
+  }
+
+  resultsEl.innerHTML = data.results.map((r, i) => resultTemplate(r, i + 1)).join("");
+}
+
+function resultTemplate(r, rank){
+  const dots = 5;
+  const filled = Math.max(1, Math.round((r.score || 0) * dots));
+  const dotsHtml = Array.from({length: dots}, (_, i) =>
+    `<span class="${i < filled ? "on" : ""}"></span>`).join("");
+
+  const snippet = (r.details || "").slice(0, 220).trim();
+
+  return `
+    <div class="result">
+      <div class="rank">${String(rank).padStart(2, "0")}</div>
+      <div>
+        <div class="result-head">
+          <h3>${escapeHtml(r.scheme_name)}</h3>
+          <div class="badges">
+            <span class="badge level">${escapeHtml(r.level || "—")}</span>
+            <span class="badge"><span class="relevance">${dotsHtml}</span></span>
+          </div>
+        </div>
+        <div class="categories">${escapeHtml(r.category || "")}</div>
+        <p class="snippet">${escapeHtml(snippet)}${(r.details || "").length > 220 ? "…" : ""}</p>
+        <div class="panels">
+          <details>
+            <summary>Benefits</summary>
+            <div class="panel-body">${escapeHtml(r.benefits) || "Not specified."}</div>
+          </details>
+          <details>
+            <summary>Eligibility</summary>
+            <div class="panel-body">${escapeHtml(r.eligibility) || "Not specified."}</div>
+          </details>
+          <details>
+            <summary>How to apply</summary>
+            <div class="panel-body">${escapeHtml(r.application) || "Not specified."}</div>
+          </details>
+          <details>
+            <summary>Documents needed</summary>
+            <div class="panel-body">${escapeHtml(r.documents) || "Not specified."}</div>
+          </details>
+        </div>
+      </div>
+    </div>`;
+}
+</script>
+
+</body>
+</html>
