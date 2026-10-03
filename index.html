@@ -93,18 +93,6 @@
   button.go:hover{background:var(--marigold-deep);color:#fff;}
   button.go:disabled{opacity:.55;cursor:progress;}
 
-  .filters{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-  .filters select{
-    background:rgba(255,255,255,.08);
-    color:#E7EAE3;
-    border:1px solid rgba(255,255,255,.28);
-    border-radius:2px;
-    padding:9px 12px;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:.88rem;
-  }
-  .filters select option{color:#1E2A28;}
-
   .example-row{margin-top:18px;font-size:.86rem;color:#9AA6AD;}
   .example-row button{
     background:none;border:none;color:#C7CFD6;
@@ -239,28 +227,10 @@ const API_BASE = "";
 const form = document.getElementById("search-form");
 const input = document.getElementById("query-input");
 const goBtn = document.getElementById("go-btn");
-const levelFilter = document.getElementById("level-filter");
-const categoryFilter = document.getElementById("category-filter");
 const resultsEl = document.getElementById("results");
 const statusEl = document.getElementById("status-line");
 const errorEl = document.getElementById("error-box");
 const emptyEl = document.getElementById("empty-state");
-
-fetch(`${API_BASE}/api/meta`)
-  .then(r => r.json())
-  .then(meta => {
-    (meta.levels || []).forEach(lvl => {
-      const opt = document.createElement("option");
-      opt.value = lvl; opt.textContent = lvl;
-      levelFilter.appendChild(opt);
-    });
-    (meta.categories || []).forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat; opt.textContent = cat;
-      categoryFilter.appendChild(opt);
-    });
-  })
-  .catch(() => {});
 
 document.querySelectorAll(".example-row button").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -307,8 +277,6 @@ async function runSearch(query){
   const payload = {
     query,
     k: 8,
-    level: levelFilter.value,
-    category: categoryFilter.value,
   };
 
   try {
@@ -328,7 +296,7 @@ async function runSearch(query){
   } catch (err){
     resultsEl.innerHTML = "";
     errorEl.style.display = "block";
-    errorEl.textContent = `Couldn't reach PolicyPulse: ${err.message}. Make sure the backend is running (python app.py) at ${API_BASE}.`;
+    errorEl.textContent = `Couldn't reach PolicyPulse: ${err.message}. Make sure the backend is running (python app.py).`;
   } finally {
     goBtn.disabled = false;
     goBtn.textContent = "Search";
@@ -344,7 +312,7 @@ function renderResults(data){
   if (!data.results.length){
     resultsEl.innerHTML = "";
     emptyEl.style.display = "block";
-    emptyEl.innerHTML = `<h2>No matching schemes</h2><p>Try removing a filter, or describe your situation a little differently.</p>`;
+    emptyEl.innerHTML = `<h2>No matching schemes</h2><p>Try describing your situation a little differently.</p>`;
     return;
   }
 
